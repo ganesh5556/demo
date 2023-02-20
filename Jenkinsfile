@@ -3,24 +3,29 @@ pipeline {
     agent {
         node any
     }
-
+    environment {
+      DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+  }
     stages {
         stage('Build Image') {
             when {
                 branch 'master'  //only run these steps on the master branch
             }
-
-            // Jenkins Stage to Build the Docker Image
-
+            steps {
+			  sh 'docker build -t ganesh5556/app:1.0 .'
+        }
+		stage('Login') {
+          steps {
+            sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+          }
         }
 
         stage('Publish Image') {
             when {
-                branch 'master'  //only run these steps on the master branch
+                branch 'master' 
             }
-            
-            // Jenkins Stage to Publish the Docker Image to Dockerhub or any Docker repository of your choice.
-
+            steps {
+			  sh 'docker push ganesh5556/app'
         }
     }
 }
